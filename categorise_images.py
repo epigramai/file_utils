@@ -2,6 +2,14 @@ import cv2
 import os
 
 
+def list_images(folder_path):
+    return [img_name for img_name in os.listdir(folder_path) if os.path.splitext(img_name)[1] in ['.jpg', '.JPG', '.png']]
+
+
+def list_subfolders(folder_path):
+    return [subfolder for subfolder in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, subfolder))]
+
+
 def resize_if_necessary(img):
     height, width = img.shape[:2]
     min_height = 200
@@ -21,10 +29,10 @@ def categorise_images(folder_path) -> None:
                        + [230] #æ
                        + [248] #ø
                        )
-    uncategorised = [img_name for img_name in os.listdir(folder_path) if os.path.splitext(img_name)[1] in ['.jpg', '.JPG', '.png']]
-    categorised = []
+    uncategorised = list_images(folder_path)
+    categorised = [os.path.join(subfolder, img_path) for subfolder in list_subfolders(folder_path) for img_path in list_images(os.path.join(folder_path, subfolder))]
     total_u = len(uncategorised)
-    total_c = 0
+    total_c = len(categorised)
     i_u = i_c = 0
     show_uncategorised = True
     while(True):
@@ -32,10 +40,9 @@ def categorise_images(folder_path) -> None:
         total = total_u if show_uncategorised else total_c
         img_names = uncategorised if show_uncategorised else categorised
         img_name = img_names[i]
-        print(img_name)
         img = cv2.imread(os.path.join(folder_path, img_name))
-        # TODO: find a way to display uncategorised/categorised and current category
-        cv2.imshow(str(i + 1) + '/' + str(total), resize_if_necessary(img))
+        label = str(i + 1) + '/' + str(total) + (': ' + os.path.split(img_name)[0] if not show_uncategorised else '')
+        cv2.imshow(label, resize_if_necessary(img))
         input = cv2.waitKey(0)
         cv2.destroyAllWindows()
         if input == 81: # left arrow key
@@ -67,7 +74,10 @@ def categorise_images(folder_path) -> None:
                 total_c -= 1
                 total_u += 1
                 i_u += 1
-                i_c = i_c % total_c
+                if total_c > 0:
+                    i_c = i_c % total_c
+                else:
+                    show_uncategorised = True
             continue
 
         if input not in valid_char_vals: # 27 is value of esc key
@@ -82,8 +92,11 @@ def categorise_images(folder_path) -> None:
             categorised.append(new_img_name)
             total_u -= 1
             total_c += 1
-            i_u = i_u % total_u
             i_c = total_c - 1
+            if total_u > 0:
+                i_u = i_u % total_u
+            else:
+                show_uncategorised = False
         else:
             categorised[i] = new_img_name
             i_c = (i_c + 1) % total_c
