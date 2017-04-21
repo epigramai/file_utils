@@ -34,7 +34,7 @@ def categorise_images(folder_path) -> None:
     total_u = len(uncategorised)
     total_c = len(categorised)
     i_u = i_c = 0
-    show_uncategorised = True
+    show_uncategorised = total_u > 0
     while(True):
         i = i_u if show_uncategorised else i_c
         total = total_u if show_uncategorised else total_c
