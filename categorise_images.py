@@ -1,25 +1,7 @@
 import cv2
 import os
-
-
-def list_images(folder_path):
-    return [img_name for img_name in os.listdir(folder_path) if os.path.splitext(img_name)[1] in ['.jpg', '.JPG', '.png']]
-
-
-def list_subfolders(folder_path):
-    return [subfolder for subfolder in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, subfolder))]
-
-
-def resize_if_necessary(img):
-    height, width = img.shape[:2]
-    min_height = 200
-    max_height = 800
-    if height < min_height or height > max_height:
-        new_height = max(min(height, max_height), min_height)
-        ratio = new_height/height
-        return cv2.resize(img, (int(ratio*width), new_height))
-    else:
-        return img
+from cv_wrapper import resize_if_necessary
+from os_wrapper import list_subfolders, list_images
 
 
 def categorise_images(folder_path) -> None:
