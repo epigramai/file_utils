@@ -1,6 +1,9 @@
-import cv2
 import os
-from os_wrapper import list_subfolders, list_images
+
+import cv2
+
+from file_utils.os_wrapper import list_subfolders, list_images
+
 
 def batch_resize_images(base_folder_path, with_subfolders, subfolder_branch=''):
     subfolder_path = os.path.join(base_folder_path, subfolder_branch)
