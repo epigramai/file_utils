@@ -1,6 +1,14 @@
 import cv2
 
 
+def resize(img, length):
+    if not length:
+        return img
+    h, w = img.shape[:2]
+    new_height, new_width = (length, int((length/h)*w)) if h > w else (int((length/w)*h), length)
+    return cv2.resize(img, (new_width, new_height))
+
+
 def resize_if_necessary(img):
     height, width = img.shape[:2]
     min_height = 200
