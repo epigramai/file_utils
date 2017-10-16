@@ -9,13 +9,11 @@ def resize(img, length):
     return cv2.resize(img, (new_width, new_height))
 
 
-def resize_if_necessary(img):
+def resize_into_bounds(img, min_length, max_length):
     height, width = img.shape[:2]
-    min_height = 200
-    max_height = 800
-    if height < min_height or height > max_height:
-        new_height = max(min(height, max_height), min_height)
-        ratio = new_height/height
-        return cv2.resize(img, (int(ratio*width), new_height))
+    length = max(height, width)
+    if length < min_length or length > max_length:
+        new_length = max(min(length, max_length), min_length)
+        return resize(img, new_length)
     else:
         return img

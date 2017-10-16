@@ -3,7 +3,7 @@ from abc import ABC
 
 import cv2
 
-from file_utils.cv_wrapper import resize_if_necessary
+from file_utils.cv_wrapper import resize_into_bounds
 from file_utils.os_wrapper import list_subfolders, list_images
 
 
@@ -55,7 +55,7 @@ class Image_classifier(ABC):
                 continue
             label = str(self.i + 1) + '/' + str(total) + (
             ': ' + os.path.split(img_name)[0] if not self.show_uncategorised else '')
-            cv2.imshow(label, resize_if_necessary(img))
+            cv2.imshow(label, resize_into_bounds(img, 200, 800))
             input = cv2.waitKey(0)
             cv2.destroyAllWindows()
             if input == 81:  # left arrow key
