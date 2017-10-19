@@ -15,8 +15,7 @@ def batch_resize_images(base_folder_path, with_subfolders, lengths, qualities, f
     if with_subfolders:
         for subsubfolder_name in list_subfolders(folder_path):
             batch_resize_images(base_folder_path, with_subfolders, lengths, qualities, os.path.join(folder_branch, subsubfolder_name))
-    #heights = {1920, 3000}
-    #qualities = {20, 40, 60, 80, 100}
+
     for length, quality in product(lengths, qualities):
         subfolder_path = os.path.join(base_folder_path, '{}_{}'.format(str(length), str(quality)), folder_branch)
         os.makedirs(subfolder_path, exist_ok=True)
