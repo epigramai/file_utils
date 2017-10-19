@@ -1,4 +1,4 @@
-# manual_image_categorisation
+# file_utils
 This is a small library of command line tools to make file manipulation easier. At present it contains:
 * categorise_images.py: look at the images in a folder and sort them to subfolders
     * Takes the path of a folder containing images, displays them one by one
