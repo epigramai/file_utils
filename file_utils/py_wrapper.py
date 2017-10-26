@@ -35,7 +35,7 @@ def full_outer_compose(dict2, dict1):
 
 
 def aggregate_keys(dictionary, aggregator=set, key_wrapper=identity, value_wrapper=identity):
-    return {value: aggregator(key_wrapper(key) for key, _ in group) for value, group in groupby(sorted(dictionary.items()), key=compose(value_wrapper, itemgetter(1)))}
+    return {value: aggregator(key_wrapper(key) for key, _ in group) for value, group in groupby(sorted(dictionary.items(), key=itemgetter(1)), key=compose(value_wrapper, itemgetter(1)))}
 
 
 def aggregate_values(dictionary, aggregator=set, key_wrapper=identity, value_wrapper=identity):
