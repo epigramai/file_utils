@@ -1,9 +1,12 @@
 import importlib
 import os
 import sys
+import time
 
+from functools import wraps
 from itertools import groupby
 from operator import itemgetter
+from types import MethodType
 
 
 def identity(x):
@@ -59,3 +62,39 @@ def get_class_from_module_path(path):
     class_at_path = getattr(module_at_path, class_name)
 
     return class_at_path
+
+
+def is_instance_method(cls, attribute):
+    return hasattr(attribute, '__self__') and isinstance(getattr(attribute, '__self__'), cls)
+
+
+def decorate_all_instance_methods(method_decorator):
+    def class_decorator(cls):
+        orig_init = cls.__init__
+        def __init__(self, *args, **kwargs):
+            self._method_times = []
+            orig_init(self, *args, **kwargs)
+        cls.__init__ = __init__
+        
+        orig_getattribute = cls.__getattribute__
+        def __getattribute__(self, s):
+            x = orig_getattribute(self, s)
+            if is_instance_method(cls, x):
+                x = MethodType(method_decorator(x.__func__), x.__self__)
+            return x
+        cls.__getattribute__ = __getattribute__
+        
+        return cls
+    return class_decorator
+
+
+def store_time(m):
+    @wraps(m)
+    def m_timed(self, *args, **kwargs):
+        if not hasattr(self, '_method_times'):
+            self._method_times = []
+        start_time = time.time()
+        r = m(self, *args, **kwargs)
+        self._method_times.append((m.__name__, time.time() - start_time))
+        return r
+    return m_timed
