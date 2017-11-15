@@ -21,28 +21,52 @@ def compose(*functions):
     return inner
 
 
-def get_or(dict1, key):
-    return dict1.get(key, key)
+def get_or(dct, k):
+    return dct.get(k, k)
 
 
-def left_outer_compose(dict2, dict1):
-    if not dict2:
-        return dict1
-    return {k: get_or(dict2, v) for k, v in dict1.items()}
+def left_outer_compose(dct2, dct1):
+    if not dct2:
+        return dct1
+    return {k: get_or(dct2, v) for k, v in dct1.items()}
 
 
-def full_outer_compose(dict2, dict1):
-    if not dict1 or not dict2:
-        return dict2 or dict1 # the order matters: None or {} -> {}; {} or None -> None
-    return {k: get_or(dict2, get_or(dict1, k)) for k in dict1.keys() | dict2.keys()}
+def full_outer_compose(dct2, dct1):
+    if not dct1 or not dct2:
+        return dct2 or dct1 # the order matters: None or {} -> {}; {} or None -> None
+    return {k: get_or(dct2, get_or(dct1, k)) for k in dct1.keys() | dct2.keys()}
 
 
-def aggregate_keys(dictionary, aggregator=set, key_wrapper=identity, value_wrapper=identity):
-    return {value: aggregator(key_wrapper(key) for key, _ in group) for value, group in groupby(sorted(dictionary.items(), key=itemgetter(1)), key=compose(value_wrapper, itemgetter(1)))}
+def aggregate(st, aggregator=set, key_wrapper=identity, value_wrapper=identity):
+    return {k: aggregator(value_wrapper(v) for v in grp) for k, grp in groupby(sorted(st, key=key_wrapper), key=key_wrapper)}
 
 
-def aggregate_values(dictionary, aggregator=set, key_wrapper=identity, value_wrapper=identity):
-    return {key: aggregator(value_wrapper(value) for _, value in group) for key, group in groupby(sorted(dictionary.items()), key=compose(key_wrapper, itemgetter(0)))}
+def aggregate_keys(dct, aggregator=set, key_wrapper=identity, value_wrapper=identity):
+    return aggregate(dct.items(), aggregator, compose(value_wrapper, itemgetter(1)), compose(key_wrapper, itemgetter(0)))
+
+
+def aggregate_values(dct, aggregator=set, key_wrapper=identity, value_wrapper=identity):
+    return aggregate(dct.items(), aggregator, compose(key_wrapper, itemgetter(0)), compose(value_wrapper, itemgetter(1)))
+
+
+#TODO: convert dict_keys objects to set in a principled manner
+def separate(iterable_object, test):
+    wheat = []
+    chaff = []
+    for x in iterable_object:
+        if test(x):
+            wheat.append(x)
+        else:
+            chaff.append(x)
+    return iterable_object.__class__(wheat), iterable_object.__class__(chaff)
+
+
+def lstrip(strng, prefix):
+    return strng[len(prefix):] if prefix and strng.startswith(prefix) else strng
+
+
+def rstrip(strng, suffix):
+    return strng[:-len(suffix)] if suffix and strng.endswith(suffix) else strng
 
 
 def get_class_from_module_path(path):
